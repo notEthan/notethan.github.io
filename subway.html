@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<head>
+  <script>
+    upd = function()
+    {
+      var t = document.getElementsByTagName('tbody')[0];
+      var curr = document.getElementById('currentval').value * 100;
+      var bmin = document.getElementById('bonusmin').value * 100;
+      var bper = document.getElementById('bonuspercent').value / 100;
+      var fare = document.getElementById('fare').value * 100;
+      var step = document.getElementById('addstep').value * 100;
+      var rows = document.getElementById('rows').value * 1;
+    
+      var add = bmin + (((-bmin % step) + step) % step);
+      var lastfares = Math.floor(curr / fare);
+    
+      while(t.childNodes[rows])
+      {
+        t.removeChild(t.childNodes[rows]);
+      }
+      for(var i=0; i < rows; ++i)
+      {
+        var tr = t.childNodes[i];
+        if(!tr)
+        {
+          tr = document.createElement('tr');
+          t.appendChild(tr);
+        }
+        var tds = tr.getElementsByTagName('td');
+        for(var tdn=0; tdn < 4; ++tdn)
+        {
+          var td = tds[tdn];
+          if(!td)
+          {
+            td = tds[tdn] = document.createElement('td');
+            tr.appendChild(td);
+          }
+        }
+    
+        var tda = tds[0], tdv = tds[1], tdf = tds[2], tdr = tds[3];
+    
+        var value, fares, remainder;
+        value = Math.round(curr + add * (1 + bper));
+        fares = Math.floor(value / fare);
+        remainder = Math.round(value - fares * fare);
+    
+        while(fares == lastfares || remainder > (step * (1 + bper)))
+        {
+          add += step;
+          value = Math.round(curr + add * (1 + bper));
+          fares = Math.floor(value / fare);
+          remainder = Math.round(value - fares * fare);
+        }
+        lastfares = fares;
+        tda.innerHTML = '$' + (add / 100);
+        tdv.innerHTML = '$' + (value / 100);
+        tdf.innerHTML = fares;
+        tdr.innerHTML = '$' + (remainder / 100);
+        tr.style.backgroundColor = (remainder == 0 ? '#d8e4bc' : 'white');
+      }
+    }
+  </script>
+</head>
+<body>
+  <div>
+    <label for='currentval'>current card value:</label>
+    <input id='currentval' onchange='upd()' value='0'>
+  </div>
+  <table border='1' cellpadding='3' cellspacing='0'>
+    <thead style='background-color: #eecf3b'>
+      <th>$ add to card</th>
+      <th>$ card value</th>
+      <th>fares</th>
+      <th>$ remainder</th>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div>
+    <label for='fare'>fare:</label>
+    <input id='fare' onchange='upd()' value='2.75'>
+  </div>
+  <div>
+    <label for='bonusmin'>minimum fare for bonus:</label>
+    <input id='bonusmin' onchange='upd()' value='5.50'>
+  </div>
+  <div>
+    <label for='discounpercent'>bonus percent:</label>
+    <input id='bonuspercent' onchange='upd()' value='11'>
+  </div>
+  <div>
+    <label for='addstep'>fare to add must be in multiples of:</label>
+    <input id='addstep' onchange='upd()' value='0.05'>
+  </div>
+  <div>
+    <label for='rows'>rows:</label>
+    <input id='rows' onchange='upd()' value='15'>
+  </div>
+</body>
+<script>
+  upd();
+</script>
